@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -38,5 +37,28 @@ class PizzaControllerTest {
                         status().isOk(),
                         jsonPath("$")
                                 .value(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE)));
+    }
+
+    private long idVanTest1Pizza() {
+        var sql = """
+                select id from pizzas where naam = 'test1'
+                """;
+        return jdbcClient.sql(sql)
+                .query(Long.class)
+                .single();
+    }
+
+    @Test
+    void findByIdMetEenBestaandeIdVindtDePizza() throws Exception {
+        var id = idVanTest1Pizza();
+        mockMvc.perform(get("/pizzas/{id}", id))
+                .andExpectAll(
+                        status().isOk(), jsonPath("id").value(id),
+                        jsonPath("naam").value("test1"));
+    }
+    @Test
+    void findByIdMetEenOnbestaandeIdGeeftNotFound() throws Exception {
+        mockMvc.perform(get("/pizzas/{id}", Long.MAX_VALUE))
+                .andExpect(status().isNotFound());
     }
 }
