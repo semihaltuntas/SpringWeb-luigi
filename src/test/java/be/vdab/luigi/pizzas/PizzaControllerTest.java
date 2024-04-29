@@ -57,9 +57,18 @@ class PizzaControllerTest {
                         jsonPath("id").value(id),
                         jsonPath("naam").value("test1"));
     }
+
     @Test
     void findByIdMetEenOnbestaandeIdGeeftNotFound() throws Exception {
         mockMvc.perform(get("/pizzas/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void findAllVindtAllePizzas() throws Exception {
+        mockMvc.perform(get("/pizzas"))
+                .andExpectAll(status().isOk(),
+                        jsonPath("length()")
+                                .value(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE)));
     }
 }

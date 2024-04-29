@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 
 @RestController
@@ -39,5 +40,11 @@ public class PizzaController {
         return pizzaService.findById(id)
                 .map(pizza -> new IdNaamPrijs(pizza))
                 .orElseThrow(()->new PizzaNietGevondenException(id));
+    }
+    @GetMapping("pizzas")
+    Stream<IdNaamPrijs> findAll(){
+        return pizzaService.findAll()
+                .stream()
+                .map(pizza -> new IdNaamPrijs(pizza));
     }
 }

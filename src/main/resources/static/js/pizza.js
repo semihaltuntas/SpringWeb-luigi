@@ -21,6 +21,7 @@ async function findById(id) {
     const response = await fetch(`pizzas/${id}`);
     if (response.ok) {
         const pizza = await response.json();
+        console.log(pizza)
         toon("pizza");
         setText("naam", pizza.naam);
         setText("prijs", pizza.prijs);
