@@ -36,14 +36,29 @@ public class PizzaController {
 //    }
 
     @GetMapping("pizzas/{id}")
-    IdNaamPrijs findById(@PathVariable long id){
+    IdNaamPrijs findById(@PathVariable long id) {
         return pizzaService.findById(id)
                 .map(pizza -> new IdNaamPrijs(pizza))
-                .orElseThrow(()->new PizzaNietGevondenException(id));
+                .orElseThrow(() -> new PizzaNietGevondenException(id));
     }
+
     @GetMapping("pizzas")
-    Stream<IdNaamPrijs> findAll(){
+    Stream<IdNaamPrijs> findAll() {
         return pizzaService.findAll()
+                .stream()
+                .map(pizza -> new IdNaamPrijs(pizza));
+    }
+
+    @GetMapping(value = "pizzas", params = "naamBevat")
+    Stream<IdNaamPrijs> findByNaamBevat(String naamBevat) {
+        return pizzaService.findByNaamBevat(naamBevat)
+                .stream()
+                .map(pizza -> new IdNaamPrijs(pizza));
+    }
+
+    @GetMapping(value = "pizzas", params = {"vanPrijs", "totPrijs"})
+    Stream<IdNaamPrijs> findByPrijsTussen(BigDecimal vanPrijs, BigDecimal totPrijs) {
+        return pizzaService.findByPrijsTussen(vanPrijs, totPrijs)
                 .stream()
                 .map(pizza -> new IdNaamPrijs(pizza));
     }

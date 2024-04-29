@@ -71,4 +71,16 @@ class PizzaControllerTest {
                         jsonPath("length()")
                                 .value(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE)));
     }
+
+    @Test
+    void findByNaamBevatVindtDeJuistePizzas() throws Exception {
+//      3 ->  System.out.println(JdbcTestUtils.countRowsInTableWhere(
+//                jdbcClient, PIZZAS_TABLE, "naam like '%test%'"));
+        mockMvc.perform(get("/pizzas")
+                        .param("naamBevat", "test"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("length()").value(JdbcTestUtils.countRowsInTableWhere(
+                                jdbcClient, PIZZAS_TABLE, "naam like '%test%'")));
+    }
 }

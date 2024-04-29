@@ -3,6 +3,7 @@ package be.vdab.luigi.pizzas;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,13 +15,24 @@ public class PizzaService {
     public PizzaService(PizzaRepository pizzaRepository) {
         this.pizzaRepository = pizzaRepository;
     }
-    public long findAantal(){
+
+    public long findAantal() {
         return pizzaRepository.findAantal();
     }
-    Optional<Pizza> findById(long id){
+
+    Optional<Pizza> findById(long id) {
         return pizzaRepository.findById(id);
     }
-    public List<Pizza> findAll(){
+
+    public List<Pizza> findAll() {
         return pizzaRepository.findAll();
+    }
+
+    public List<Pizza> findByNaamBevat(String woord) {
+        return pizzaRepository.findByNaamBevat(woord);
+    }
+
+    public List<Pizza> findByPrijsTussen(BigDecimal van, BigDecimal tot) {
+        return pizzaRepository.findByPrijsTussen(van, tot);
     }
 }
