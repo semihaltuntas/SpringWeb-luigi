@@ -1,5 +1,6 @@
 package be.vdab.luigi.pizzas;
 
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -77,10 +78,23 @@ class PizzaControllerTest {
 //      3 ->  System.out.println(JdbcTestUtils.countRowsInTableWhere(
 //                jdbcClient, PIZZAS_TABLE, "naam like '%test%'"));
         mockMvc.perform(get("/pizzas")
-                        .param("naamBevat", "test"))
+                        .param("naamBevat", "test")) ///pizzas?naamBevat=test
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("length()").value(JdbcTestUtils.countRowsInTableWhere(
                                 jdbcClient, PIZZAS_TABLE, "naam like '%test%'")));
+    }
+
+    @Test
+    void findByPrijsTussenVindtDeJuistePizza() throws Exception {
+//       7 ->
+//        System.out.println(JdbcTestUtils.countRowsInTableWhere(
+//                jdbcClient, PIZZAS_TABLE, "prijs between 5 and 20 "));
+        mockMvc.perform(get("/pizzas")
+                        .param("vanPrijs", "5")
+                        .param("totPrijs", "20")) ///pizzas?vanPrijs=10&totPrijs=20
+                .andExpectAll(status().isOk(),
+                        jsonPath("length()").value(JdbcTestUtils.countRowsInTableWhere(
+                                jdbcClient, PIZZAS_TABLE, "prijs between 5 and 20 ")));
     }
 }
