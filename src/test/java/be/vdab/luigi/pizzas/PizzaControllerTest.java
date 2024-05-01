@@ -9,10 +9,15 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 
 @SpringBootTest
@@ -96,5 +101,14 @@ class PizzaControllerTest {
                 .andExpectAll(status().isOk(),
                         jsonPath("length()").value(JdbcTestUtils.countRowsInTableWhere(
                                 jdbcClient, PIZZAS_TABLE, "prijs between 5 and 20 ")));
+    }
+
+    @Test
+    void deleteVerwijdertDePizza() throws Exception {
+        var id = idVanTest1Pizza();
+        mockMvc.perform(delete("/pizzas/{id}", id))
+                .andExpect(status().isOk());
+                        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                                "id= " + id)).isZero();
     }
 }
