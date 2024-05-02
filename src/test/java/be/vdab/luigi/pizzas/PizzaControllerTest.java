@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -12,13 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
 @Transactional
@@ -26,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 class PizzaControllerTest {
     private final static String PIZZAS_TABLE = "pizzas";
+    private final static Path TEST_RESOURCES = Path.of("src/test/resources");
     private final MockMvc mockMvc;
     private final JdbcClient jdbcClient;
 
@@ -108,7 +113,20 @@ class PizzaControllerTest {
         var id = idVanTest1Pizza();
         mockMvc.perform(delete("/pizzas/{id}", id))
                 .andExpect(status().isOk());
-                        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
-                                "id= " + id)).isZero();
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                "id= " + id)).isZero();
+    }
+
+    @Test
+    void createVoegtDePizzToe() throws Exception {
+        var jsonData = Files.readString(TEST_RESOURCES.resolve("correctePizza.json"));
+        var responseBody = mockMvc.perform(post("/pizzas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonData))
+                .andExpectAll(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        // System.out.println("id van responseBody-> "+ responseBody);
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                "naam = 'test3' and id =" + responseBody)).isOne();
     }
 }

@@ -1,9 +1,6 @@
 package be.vdab.luigi.pizzas;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -63,9 +60,16 @@ public class PizzaController {
                 .stream()
                 .map(pizza -> new IdNaamPrijs(pizza));
     }
+
     @DeleteMapping("pizzas/{id}")
-    void delete(@PathVariable long id){
-      pizzaService.delete(id);
-        System.out.println("pizza is verwijderd.id:"+id);
+    void delete(@PathVariable long id) {
+        pizzaService.delete(id);
+        System.out.println("pizza is verwijderd.id:" + id);
+    }
+
+    @PostMapping("pizzas")
+    long create(@RequestBody NieuwePizza nieuwePizza) {
+        var id = pizzaService.create(nieuwePizza);
+        return id;
     }
 }
