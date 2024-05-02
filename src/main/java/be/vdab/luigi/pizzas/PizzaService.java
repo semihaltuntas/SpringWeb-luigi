@@ -42,9 +42,9 @@ public class PizzaService {
     }
 
     @Transactional
-    long create(NieuwePizza nieuwePizza) {
-        var winst = nieuwePizza.prijs().multiply(BigDecimal.valueOf(0.1));
-        var pizza = new Pizza(0, nieuwePizza.naam(), nieuwePizza.prijs(), winst);
+    long create(NieuwePizza newPizza) {
+        var winst = newPizza.prijs().multiply(BigDecimal.valueOf(0.1));
+        var pizza = new Pizza(0, newPizza.naam(), newPizza.prijs(), winst);
         return pizzaRepository.create(pizza);
     }
 }

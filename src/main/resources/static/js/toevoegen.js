@@ -29,10 +29,6 @@ function verbergFouten() {
     verberg("storing");
 }
 
-50
-SPRING
-WEB
-
 async function voegToe(pizza) {
     const response = await fetch("pizzas",
         {
