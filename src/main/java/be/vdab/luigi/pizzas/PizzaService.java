@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,9 +12,11 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class PizzaService {
     private final PizzaRepository pizzaRepository;
+    private final PrijsRepository prijsRepository;
 
-    public PizzaService(PizzaRepository pizzaRepository) {
+    public PizzaService(PizzaRepository pizzaRepository, PrijsRepository prijsRepository) {
         this.pizzaRepository = pizzaRepository;
+        this.prijsRepository = prijsRepository;
     }
 
     public long findAantal() {
@@ -45,6 +48,14 @@ public class PizzaService {
     long create(NieuwePizza newPizza) {
         var winst = newPizza.prijs().multiply(BigDecimal.valueOf(0.1));
         var pizza = new Pizza(0, newPizza.naam(), newPizza.prijs(), winst);
-        return pizzaRepository.create(pizza);
+        var id = pizzaRepository.create(pizza);
+        prijsRepository.create(new Prijs(pizza.getPrijs(), LocalDateTime.now(), id));
+        return id;
+    }
+
+    @Transactional
+    void updatePrijs(Prijs prijs) {
+        pizzaRepository.updatePrijs(prijs.getPizzaId(), prijs.getPrijs());
+        prijsRepository.create(prijs);
     }
 }

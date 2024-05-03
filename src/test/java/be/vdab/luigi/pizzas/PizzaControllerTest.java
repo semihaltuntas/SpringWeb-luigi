@@ -13,6 +13,7 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 @SpringBootTest
 @Transactional
@@ -32,6 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 class PizzaControllerTest {
     private final static String PIZZAS_TABLE = "pizzas";
+    private final static String PRIJZEN_TABLE = "prijzen";
     private final static Path TEST_RESOURCES = Path.of("src/test/resources");
     private final MockMvc mockMvc;
     private final JdbcClient jdbcClient;
@@ -130,6 +133,8 @@ class PizzaControllerTest {
         // System.out.println("id van responseBody-> "+ responseBody);
         assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
                 "naam = 'test3' and id =" + responseBody)).isOne();
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient,PRIJZEN_TABLE,
+                "prijs = 0.01 and pizzaId=" + responseBody)).isOne();
     }
 
     @ParameterizedTest
@@ -140,6 +145,37 @@ class PizzaControllerTest {
         mockMvc.perform(post("/pizzas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonData))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void patchWijzigtPrijsEnVoegtPrijsToe() throws Exception {
+        var id = idVanTest1Pizza();
+        mockMvc.perform(patch("/pizzas/{id}/prijs", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("7.7"))
+                .andExpect(status().isOk());
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                "prijs = 7.7 and id =" + id)).isOne();
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PRIJZEN_TABLE,
+                "prijs = 7.7 and pizzaId = " + id)).isOne();
+    }
+
+    @Test
+    void patchVanOnbestaandePizzaMislukt() throws Exception {
+        mockMvc.perform(patch("/pizzas/{id}/prijs", Long.MAX_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("8.8"))
+                .andExpect(status().isNotFound());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "-7"})
+    void patchMetVerkeerdePrijsMislukt(String verkeerdePrijs) throws Exception {
+        var id = idVanTest1Pizza();
+        mockMvc.perform(patch("/pizzas/{id}/prijs", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(verkeerdePrijs))
                 .andExpect(status().isBadRequest());
     }
 }
