@@ -133,7 +133,7 @@ class PizzaControllerTest {
         // System.out.println("id van responseBody-> "+ responseBody);
         assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
                 "naam = 'test3' and id =" + responseBody)).isOne();
-        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient,PRIJZEN_TABLE,
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PRIJZEN_TABLE,
                 "prijs = 0.01 and pizzaId=" + responseBody)).isOne();
     }
 
@@ -177,5 +177,14 @@ class PizzaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(verkeerdePrijs))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void eenPizzaToevoegenDieAlBestaatMislukt() throws Exception {
+        var jsonData = Files.readString(TEST_RESOURCES.resolve("pizzaDieAlBestaat.json"));
+        mockMvc.perform(post("/pizzas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonData))
+                .andExpect(status().isConflict());
     }
 }

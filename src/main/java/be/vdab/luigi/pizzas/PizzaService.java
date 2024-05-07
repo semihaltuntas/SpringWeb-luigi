@@ -1,5 +1,6 @@
 package be.vdab.luigi.pizzas;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,17 +46,29 @@ public class PizzaService {
     }
 
     @Transactional
-    long create(NieuwePizza newPizza) {
-        var winst = newPizza.prijs().multiply(BigDecimal.valueOf(0.1));
-        var pizza = new Pizza(0, newPizza.naam(), newPizza.prijs(), winst);
-        var id = pizzaRepository.create(pizza);
-        prijsRepository.create(new Prijs(pizza.getPrijs(), LocalDateTime.now(), id));
-        return id;
+    long create(NieuwePizza nieuwePizza) {
+        try {
+            var winst = nieuwePizza.prijs().multiply(BigDecimal.valueOf(0.1));
+            var pizza = new Pizza(0, nieuwePizza.naam(), nieuwePizza.prijs(), winst);
+            return pizzaRepository.create(pizza);
+        } catch (DuplicateKeyException ex) {
+            throw new PizzaBestaatAlException(nieuwePizza.naam());
+        }
+
+//        var winst = newPizza.prijs().multiply(BigDecimal.valueOf(0.1));
+//        var pizza = new Pizza(0, newPizza.naam(), newPizza.prijs(), winst);
+//        var id = pizzaRepository.create(pizza);
+//        prijsRepository.create(new Prijs(pizza.getPrijs(), LocalDateTime.now(), id));
+//        return id;
     }
 
     @Transactional
     void updatePrijs(Prijs prijs) {
         pizzaRepository.updatePrijs(prijs.getPizzaId(), prijs.getPrijs());
         prijsRepository.create(prijs);
+    }
+
+    List<Prijs> findPrijzen(long id) {
+        return prijsRepository.findByPizzaId(id);
     }
 }

@@ -22,6 +22,13 @@ byId("bewaar").onclick = async function () {
         nieuwePrijsInput.focus();
     }
 };
+byId("prijzen").onclick = function () {
+    const idEnNaam = {
+        id: Number(byId("zoekId").value),
+        naam: byId("naam").innerText
+    };
+    sessionStorage.setItem("idEnNaam", JSON.stringify(idEnNaam))
+};
 
 async function updatePrijs(nieuwePrijs) {
     const response = await fetch(`pizzas/${byId("zoekId").value}/prijs`,

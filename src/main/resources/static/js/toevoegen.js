@@ -1,5 +1,5 @@
 "use strict";
-import {byId, toon, verberg} from "./util.js";
+import {byId, setText, toon, verberg} from "./util.js";
 
 byId("toevoegen").onclick = async function () {
     verbergFouten();
@@ -27,6 +27,7 @@ function verbergFouten() {
     verberg("naamFout");
     verberg("prijsFout");
     verberg("storing");
+    verberg("conflict");
 }
 
 async function voegToe(pizza) {
@@ -38,6 +39,14 @@ async function voegToe(pizza) {
         });
     if (response.ok) {
         window.location = "allepizzas.html";
+    } else {
+        toon("storing");
+    }
+    if (response.status === 409) {
+        const responseBody = await response.json();
+       // console.log(responseBody)
+        setText("conflict", responseBody.message);
+        toon("conflict");
     } else {
         toon("storing");
     }
