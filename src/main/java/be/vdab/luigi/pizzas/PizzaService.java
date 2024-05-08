@@ -50,13 +50,15 @@ public class PizzaService {
         try {
             var winst = nieuwePizza.prijs().multiply(BigDecimal.valueOf(0.1));
             var pizza = new Pizza(0, nieuwePizza.naam(), nieuwePizza.prijs(), winst);
-            return pizzaRepository.create(pizza);
+            var id = pizzaRepository.create(pizza);
+            prijsRepository.create(new Prijs(pizza.getPrijs(), LocalDateTime.now(), id));
+            return id;
         } catch (DuplicateKeyException ex) {
             throw new PizzaBestaatAlException(nieuwePizza.naam());
         }
 
-//        var winst = newPizza.prijs().multiply(BigDecimal.valueOf(0.1));
-//        var pizza = new Pizza(0, newPizza.naam(), newPizza.prijs(), winst);
+//        var winst = nieuwePizza.prijs().multiply(BigDecimal.valueOf(0.1));
+//        var pizza = new Pizza(0, nieuwePizza.naam(), nieuwePizza.prijs(), winst);
 //        var id = pizzaRepository.create(pizza);
 //        prijsRepository.create(new Prijs(pizza.getPrijs(), LocalDateTime.now(), id));
 //        return id;

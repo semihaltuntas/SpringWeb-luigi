@@ -124,17 +124,17 @@ class PizzaControllerTest {
 
     @Test
     void createVoegtDePizzToe() throws Exception {
-        var jsonData = Files.readString(TEST_RESOURCES.resolve("correctePizza.json"));
+        var jsonData = Files.readString(TEST_RESOURCES.resolve("correctePizza2.json"));
         var responseBody = mockMvc.perform(post("/pizzas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonData))
                 .andExpectAll(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        // System.out.println("id van responseBody-> "+ responseBody);
+         System.out.println("id van responseBody-> "+ responseBody);
         assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
-                "naam = 'test3' and id =" + responseBody)).isOne();
+                "naam = 'test5' and id =" + responseBody)).isOne();
         assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PRIJZEN_TABLE,
-                "prijs = 0.01 and pizzaId=" + responseBody)).isOne();
+                "prijs = 0.05 and pizzaId=" + responseBody)).isOne();
     }
 
     @ParameterizedTest
